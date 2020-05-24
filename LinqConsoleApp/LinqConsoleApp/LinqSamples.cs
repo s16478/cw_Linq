@@ -190,14 +190,14 @@ namespace LinqConsoleApp
         /// </summary>
         public void Przyklad1()
         {
-            //var res = new List<Emp>();
-            //foreach(var emp in Emps)
-            //{
-            //    if (emp.Job == "Backend programmer") res.Add(emp);
-            //}
+            var res = new List<Emp>();
+            foreach(var emp in Emps)
+            {
+                if (emp.Job == "Backend programmer") res.Add(emp);
+            }
 
             //1. Query syntax (SQL)
-            var res = from emp in Emps
+            var res1 = from emp in Emps
                       where emp.Job == "Backend programmer"
                       select new
                       {
@@ -205,8 +205,11 @@ namespace LinqConsoleApp
                           Zawod = emp.Job
                       };
 
-
             //2. Lambda and Extension methods
+            var list1 = Emps.Where
+                            (emp => emp.Job == "Backend programmer")
+                            .ToList();
+            list1.ForEach(i => Console.WriteLine("{0}\t", i));
         }
 
         /// <summary>
@@ -214,8 +217,10 @@ namespace LinqConsoleApp
         /// </summary>
         public void Przyklad2()
         {
-            
-
+            var list2 = Emps.Where
+                            (emp => emp.Job == "Frontend programmer" && emp.Salary > 1000)
+                            .OrderByDescending(emp => emp.Ename).ToList();
+            list2.ForEach(i => Console.WriteLine("{0}\t", i));
         }
 
         /// <summary>
@@ -223,7 +228,8 @@ namespace LinqConsoleApp
         /// </summary>
         public void Przyklad3()
         {
-          
+            var str_int3 = Emps.Max(emp => emp.Salary).ToString();
+            Console.WriteLine(str_int3);
         }
 
         /// <summary>
@@ -231,7 +237,10 @@ namespace LinqConsoleApp
         /// </summary>
         public void Przyklad4()
         {
-
+            var list4 = Emps.Where
+                            (emp => emp.Salary == Emps.Max(emp => emp.Salary))
+                            .ToList();
+            list4.ForEach(i => Console.WriteLine("{0}\t", i));
         }
 
         /// <summary>
@@ -239,7 +248,13 @@ namespace LinqConsoleApp
         /// </summary>
         public void Przyklad5()
         {
-
+            var list5 = Emps.Select
+                            (emp => new
+                                    {
+                                        Nazwisko = emp.Ename,
+                                        Praca = emp.Job
+                                    }).ToList();
+            list5.ForEach(i => Console.WriteLine("{0}\t", i));
         }
 
         /// <summary>
@@ -249,7 +264,12 @@ namespace LinqConsoleApp
         /// </summary>
         public void Przyklad6()
         {
-
+            var list6 = Emps.Join
+                            (Depts, emp => emp.Deptno,
+                                   dept => dept.Deptno,
+                            (emp, dept) => new { emp.Ename, emp.Job, dept.Dname })
+                            .ToList();
+            list6.ForEach(i => Console.WriteLine("{0}\t", i));
         }
 
         /// <summary>
@@ -257,7 +277,14 @@ namespace LinqConsoleApp
         /// </summary>
         public void Przyklad7()
         {
-
+            var list7 = Emps.GroupBy
+                               (emp => emp.Job)
+                               .Select(emp => new
+                                            {
+                                                emp.Key,
+                                                count = emp.Count()
+                                            }).ToList();
+            list7.ForEach(i => Console.WriteLine("{0}\t", i));
         }
 
         /// <summary>
@@ -266,7 +293,9 @@ namespace LinqConsoleApp
         /// </summary>
         public void Przyklad8()
         {
-
+            var bool8 = Emps.Any
+                            (emp => emp.Job == "Backend programmer");
+            Console.WriteLine(bool8);
         }
 
         /// <summary>
@@ -275,7 +304,11 @@ namespace LinqConsoleApp
         /// </summary>
         public void Przyklad9()
         {
-
+            var str9 = Emps.Where
+                            (emp => emp.Job == "Frontend programmer")
+                           .OrderByDescending(emp => emp.HireDate)
+                           .FirstOrDefault().ToString();
+            Console.WriteLine(str9);
         }
 
         /// <summary>
@@ -285,20 +318,46 @@ namespace LinqConsoleApp
         /// </summary>
         public void Przyklad10Button_Click()
         {
+            Emp emp = new Emp
+                            {
+                                Ename = null,
+                                Job = null,
+                                HireDate = null
+                            };
 
+            List<Emp> list = new List<Emp>();
+            list.Add(emp);
+
+            var list10 = Emps.Union(list)
+                            .Select(emp => new
+                                            {
+                                                emp.Ename,
+                                                emp.Job,
+                                                emp.HireDate
+                                            }).ToList();
+            list10.ForEach(i => Console.WriteLine("{0}\t", i));
         }
 
         //Znajdź pracownika z najwyższą pensją wykorzystując metodę Aggregate()
         public void Przyklad11()
         {
-
+            var str11 = Emps.Aggregate
+                                ((x, y) => y.Salary > x.Salary ? y : x).ToString();
+            Console.WriteLine(str11);
         }
 
         //Z pomocą języka LINQ i metody SelectMany wykonaj złączenie
         //typu CROSS JOIN
         public void Przyklad12()
         {
-
+            var list12 = Emps.SelectMany
+                                    (emp => Depts, (emp, dept) 
+                                         => new
+                                            {
+                                                emp,
+                                                dept.Dname
+                                            }).ToList();
+            list12.ForEach(i => Console.WriteLine("{0}\t", i));
         }
     }
 }
